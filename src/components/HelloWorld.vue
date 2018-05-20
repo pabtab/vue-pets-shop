@@ -1,41 +1,120 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://github.com/vuejs/vue-cli/tree/dev/docs" target="_blank">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank">Twitter</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org/en/essentials/getting-started.html" target="_blank">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org/en/intro.html" target="_blank">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank">awesome-vue</a></li>
-    </ul>
+    <b-container class="bx-example-row">
+      <b-row>
+        <b-col cols="4" v-for="pet in pets" v-bind:key="pet.id">
+          {{pet.context.name}}
+          <div>
+            <b-card
+              :title="pet.context.name"
+              :img-src="pet.context.image"
+              img-top
+              tag="article"
+              style="max-width:20rem;"
+              class="mb-2">
+            <p class="card-text">
+              {{pet.context.description}}
+            </p>
+            <b-button href="#" variant="primary">
+              Adoptar
+            </b-button>
+
+            </b-card>
+          </div>
+        </b-col>
+      </b-row>
+      <b-form @submit="postPet">
+        <b-form-group id="name"
+                      label="Nombre de la mascota:"
+                      label-for="name"
+                      description="Agregue la descripcion de la mascota">
+            <b-form-input id="name"
+                          type="text"
+                          v-model="form.name"
+                          required>
+            </b-form-input>
+        </b-form-group>
+        <b-form-group id="image"
+                      label="Url de la foto"
+                      label-for="image"
+                      description="Agregue la url de la foto">
+            <b-form-input id="image"
+                          type="text"
+                          v-model="form.image"
+                          required>
+            </b-form-input>
+        </b-form-group>
+        <b-form-group id="description"
+                      label="Agregue descricion"
+                      label-for="desc"
+                      description="Agregue la descripncion de la mascota">
+          <b-form-input id="description"
+                          type="text"
+                          v-model="form.description"
+                          required>
+          </b-form-input>
+        </b-form-group>
+        <b-button type="submit" variant="primary">Agregar mascota</b-button>
+      </b-form>
+    </b-container>
+  <h1></h1>
+    
   </div>
 </template>
 
 <script>
+import axios from "axios";
 export default {
-  name: 'HelloWorld',
+  name: "HelloWorld",
   props: {
     msg: String
+  },
+
+  data() {
+    return {
+      pets: [],
+      form: {
+        name: '',
+        image: '',
+        description: ''
+      },
+    };
+  },
+
+  mounted() {
+    axios
+      .get(
+        "http://things.ubidots.com/api/v1.6/devices/pets/petlist/values?token=A1E-uWcVqarOPgqJFhY2cqFTexdECgWGcX"
+      )
+      .then(response => {
+        this.pets = response.data.results;
+      });
+  },
+
+  methods: {
+    postPet() {
+      console.log(this.form)
+      //debugger
+      const data = {
+        value: 0,
+        context: {
+          name: this.form.name,
+          image: this.form.image,
+          description: this.form.description
+        }
+      };
+      debugger
+      axios
+        .post(
+          "http://things.ubidots.com/api/v1.6/devices/pets/petlist/values?token=A1E-uWcVqarOPgqJFhY2cqFTexdECgWGcX",
+          data
+        )
+        .then(response => {
+          console.log(response.status);
+        });
+    }
   }
-}
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
